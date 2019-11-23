@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 from werkzeug.wrappers import Request
 
@@ -11,6 +12,6 @@ def wsgi_app(app, env, start_response):
     # 解析请求头
     request = Request(env)
     # 把请求传递给框架的路由控制进行处理，并获取处理结果
-    response = app.dispath_request(request)
+    response = app.dispatch_request(request)
     # 返回给服务器
     return response(env, start_response)
