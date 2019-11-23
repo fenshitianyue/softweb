@@ -1,17 +1,29 @@
+# -*- coding: utf-8 -*-
 
 from werkzeug.serving import run_simple
+from werkzeug.wrappers import Response
+from wsgi_adapter import wsgi_app
 
-class softweb:
+class SoftWeb:
     def __init__(self):
-        self.host = '127.0.0.1'
+        self.host = '192.168.204.129'
         self.port = 1024
 
-    # 路由控制
-    def dispatch_request(self):
-        pass
+    def dispatch_request(self, request):
+        """
+        路由控制
+        """
+        status = 200
+        headers = {
+            'Server': 'softweb',
+        }
+        # 传递符合WSGI规范的响应体给WSGI模块
+        return Response('<h1>hello world</h1>', content_type='text/html', headers=headers, status=status)
 
-    # 启动入口
     def run(self, host=None, port=None, **options):
+        """
+        启动入口
+        """
         # 初始化
         for key, value in options.items():
             if value is not None:
@@ -23,6 +35,8 @@ class softweb:
         # 启动web框架
         run_simple(hostname=self.host, port=self.port, application=self, **options)
 
-    # 本框架被 WSGI 调用入口函数的方法
-    def __call__(self):
-        pass
+    def __call__(self, env, start_response):
+        """
+        本框架被 WSGI 调用入口函数的方法
+        """
+        return wsgi_app(self, env, start_response)
