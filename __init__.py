@@ -3,11 +3,35 @@
 from werkzeug.serving import run_simple
 from werkzeug.wrappers import Response
 from wsgi_adapter import wsgi_app
+import exceptions
+
+class ExecFunc:
+    def __init__(self, func, func_type, **options):
+        self.func = func
+        self.func_type = func_type
+        self.options = options
+
 
 class SoftWeb:
-    def __init__(self):
+    def __init__(self, static_catalog='static'):
         self.host = '192.168.204.129'
         self.port = 1024
+        self.url_map = {}  # 存放 url 与 endpoint 的映射
+        self.static_map = {}  # 存放 url 与静态资源的映射
+        self.func_map = {}  # 存放 url 与处理函数的映射
+        self.static_catalog = static_catalog  # 静态资源本地存放路径
+
+    def add_url_rule(self, url, func, func_type, endpoint=None, **options):
+        if endpoint is None:
+            endpoint = func.__name__
+        if url in self.url_map:
+            raise exceptions.URLExistError
+        if endpoint in self.func_map and func_type != 'static':
+            raise exceptions.EndpointExistError
+        # 添加 url 与节点的映射
+        self.url_map[url] = endpoint
+        # 添加节点与处理函数的映射
+        self.func_map[endpoint] = ExecFunc(func, func_type, **options)
 
     def dispatch_request(self, request):
         """
