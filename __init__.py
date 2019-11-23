@@ -4,6 +4,8 @@ from werkzeug.serving import run_simple
 from werkzeug.wrappers import Response
 from wsgi_adapter import wsgi_app
 import exceptions
+import utility
+import os
 
 # 定义常见服务器异常的响应消息
 ERROR_MAP = {
@@ -49,6 +51,19 @@ class SoftWeb:
         # 添加节点与处理函数的映射
         self.func_map[endpoint] = ExecFunc(func, func_type, **options)
 
+    def dispatch_static(self, static_path):
+        """
+        静态资源路由控制：找到了返回文件，否则返回404响应
+        """
+        if os.path.exists(static_path):
+            suffix = utility.get_file_suffix(static_path)
+            doc_type = TYPE_MAP.get(suffix, 'text/plain')
+            with open(static_path, 'rb') as f:
+                rep = f.read()
+            return Response(rep, content_type=doc_type)
+        else:
+            return ERROR_MAP[404]
+
     def dispatch_request(self, request):
         """
         路由控制
@@ -72,6 +87,7 @@ class SoftWeb:
             self.host = host
         if port is not None:
             self.port = port
+        self.func_map['static'] = ExecFunc(func=self.dispatch_static, func_type='static')
         # 启动web框架
         run_simple(hostname=self.host, port=self.port, application=self, **options)
 
