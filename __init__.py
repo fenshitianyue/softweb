@@ -93,7 +93,7 @@ class SoftWeb:
         if exec_function.func_type == 'route':  # 路由处理
             if request.method in exec_function.options.get('methods'):
                 # 判断路由的执行函数是否需要请求体进行内部处理
-                argcount = exec_function.func.__code__.co_argcount
+                argcount = exec_function.func.__code__.co_argcount  # TODO
                 if argcount > 0:
                     rep = exec_function.func(request)
                 else:
@@ -111,6 +111,8 @@ class SoftWeb:
         content_type = 'text/html'
         return Response(rep, content_type='{0}; charset=UTF-8 '.format(content_type), headers=headers, status=status)
 
+    def bind_view(self, url, view_class, endpoint):
+        self.add_url_rule(url, func=view_class.get_func(endpoint), func_type='view')
 
     def run(self, host=None, port=None, **options):
         """
