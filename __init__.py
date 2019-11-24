@@ -6,6 +6,7 @@ from wsgi_adapter import wsgi_app
 import exceptions
 import utility
 from route import Route
+# import view
 import os
 
 
@@ -74,6 +75,7 @@ class SoftWeb:
         # 从 URL 中提取出文件路径
         file_path = '/' + '/'.join(request.url.split('/')[3:]).split('?')[0]
         # 通过 filepath 寻找节点
+        # if file_path.find(self.static_catalog) == 1 and file_path.index(self.static_catalog) == 1:
         if file_path.startswith(''.join(['/', self.static_catalog, '/'])):
             # print file_path
             # print ''.join(['/', self.static_catalog, '/'])
@@ -115,7 +117,7 @@ class SoftWeb:
         self.add_url_rule(url, func=view_class.get_func(endpoint), func_type='view')
 
     def load_controller(self, controller):
-        name = controller.__name__
+        name = controller.__name__()  # TODO:这里回头把controller中获取名字的方法改一下，容易误导__name__是一个属性
         # 遍历映射关系，将映射关系添加到类的 url_map 方法中
         for rule in controller.url_map:
             # 绑定 URL 与 视图函数，节点的命名格式：控制器名 + . + 节点名
