@@ -36,7 +36,7 @@ class SoftWeb:
         self.port = 1024
         self.url_map = {}  # 存放 url 与 endpoint 的映射
         self.static_map = {}  # 存放 url 与静态资源的映射
-        self.func_map = {}  # 存放 url 与处理函数的映射
+        self.func_map = {}  # 存放 endpoint 与处理函数的映射
         self.static_catalog = static_catalog  # 静态资源本地存放路径
 
     def add_url_rule(self, url, func, func_type, endpoint=None, **options):
@@ -68,12 +68,42 @@ class SoftWeb:
         """
         路由控制
         """
-        status = 200
+        # 从 URL 中提取出文件路径
+        file_path = '/' + '/'.join(request.url.split('/')[3:]).split('?')[0]
+        # 通过 filepath 寻找节点
+        if file_path.startwith(''.join['/', self.static_catalog, '/']):
+            endpoint = 'static'
+            file_path = file_path[1:]
+        else:
+            endpoint = self.url_map.get(file_path, None)
+
         headers = {
-            'Server': 'softweb',
+            'Server': 'SoftWeb 0.1'  # Server 参数表示运行的服务名
         }
-        # 传递符合WSGI规范的响应体给WSGI模块
-        return Response('<h1>hello world</h1>', content_type='text/html', headers=headers, status=status)
+        if endpoint is None:
+            return ERROR_MAP[404]
+        exec_function = self.func_map[endpoint]
+        if exec_function.func_type == 'route':  # 路由处理
+            if request.method in exec_function.options.get('methods'):
+                # 判断路由的执行函数是否需要请求体进行内部处理
+                argcount = exec_function.func.__code__.co_argcount
+                if argcount > 0:
+                    rep = exec_function.func(request)
+                else:
+                    rep = exec_function.func()
+            else:  # 未知请求方法
+                return ERROR_MAP[401]
+        elif exec_function.func_type == 'view':  # 视图处理
+            rep = exec_function.func(request)
+        elif exec_function.func_type == 'static':  # 静态资源处理
+            return exec_function.func(file_path)
+        else:  # 未知类型处理
+            return ERROR_MAP[503]
+
+        status = 200
+        content_type = 'text/html'
+        return Response(rep, content_type='{0}; charset=UTF-8 '.format(content_type), headers=headers, status=status)
+
 
     def run(self, host=None, port=None, **options):
         """
