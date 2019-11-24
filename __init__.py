@@ -5,7 +5,9 @@ from werkzeug.wrappers import Response
 from wsgi_adapter import wsgi_app
 import exceptions
 import utility
+from route import Route
 import os
+
 
 # 定义常见服务器异常的响应消息
 ERROR_MAP = {
@@ -38,6 +40,7 @@ class SoftWeb:
         self.static_map = {}  # 存放 url 与静态资源的映射
         self.func_map = {}  # 存放 endpoint 与处理函数的映射
         self.static_catalog = static_catalog  # 静态资源本地存放路径
+        self.route = Route(self)  # 路由装饰器
 
     def add_url_rule(self, url, func, func_type, endpoint=None, **options):
         if endpoint is None:
@@ -71,10 +74,14 @@ class SoftWeb:
         # 从 URL 中提取出文件路径
         file_path = '/' + '/'.join(request.url.split('/')[3:]).split('?')[0]
         # 通过 filepath 寻找节点
-        if file_path.startwith(''.join['/', self.static_catalog, '/']):
+        if file_path.startswith(''.join(['/', self.static_catalog, '/'])):
+            # print file_path
+            # print ''.join(['/', self.static_catalog, '/'])
+            # print 'enter file_path.startswith'
             endpoint = 'static'
             file_path = file_path[1:]
         else:
+            print 'enter else...'
             endpoint = self.url_map.get(file_path, None)
 
         headers = {
