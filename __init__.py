@@ -81,7 +81,7 @@ class SoftWeb:
             endpoint = 'static'
             file_path = file_path[1:]
         else:
-            print 'enter else...'
+            # print 'enter else...'
             endpoint = self.url_map.get(file_path, None)
 
         headers = {
@@ -113,6 +113,13 @@ class SoftWeb:
 
     def bind_view(self, url, view_class, endpoint):
         self.add_url_rule(url, func=view_class.get_func(endpoint), func_type='view')
+
+    def load_controller(self, controller):
+        name = controller.__name__
+        # 遍历映射关系，将映射关系添加到类的 url_map 方法中
+        for rule in controller.url_map:
+            # 绑定 URL 与 视图函数，节点的命名格式：控制器名 + . + 节点名
+            self.bind_view(rule['url'], rule['view'], ''.join([name, '.', rule['endpoint']]))
 
     def run(self, host=None, port=None, **options):
         """
