@@ -25,3 +25,11 @@ class View(object):
         func.__module__ = cls.__module__
         func.methods = cls.methods
         return func
+
+class Controller:
+    def __init__(self, name, url_map):
+        self.url_map = url_map  # 存放映射关系的结构 -> [{...},{...},...]
+        self.name = name  # 控制器的名字，在生成 endpoint 时区分不同控制器下同名的视图对象
+
+    def __name__(self):
+        return self.name
