@@ -23,7 +23,8 @@ def replace_template(app, path, **options):
     path = os.path.join(app.template_catalog, path)
     if os.path.exists(path):
         with open(path, 'rb') as f:
-            content = f.read().decode()
+            content = f.read()
+            # content = f.read().decode()
         # 解析出所有的标记
         args = parse_args(content)
         # 如果置换内容不为空
