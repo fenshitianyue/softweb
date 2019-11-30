@@ -8,6 +8,7 @@ class View(object):
         """
         视图处理函数调度入口
         """
+        # NotImplementedError是用于接口类中使用，如果子类没有重写父类中的方法，就会捕获该异常
         raise NotImplementedError
 
     @classmethod
