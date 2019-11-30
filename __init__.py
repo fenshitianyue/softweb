@@ -6,6 +6,7 @@ from wsgi_adapter import wsgi_app
 import exceptions
 import utility
 from route import Route
+from template_engine import replace_template
 # import view
 import os
 
@@ -34,14 +35,18 @@ class ExecFunc:
 
 
 class SoftWeb:
-    def __init__(self, static_catalog='static'):
+    template_catalog = None  # 类属性，模板文件本地存放目录
+
+    def __init__(self, static_catalog='static', template_catalog='template'):
         self.host = '192.168.204.129'
         self.port = 1024
-        self.url_map = {}  # 存放 url 与 endpoint 的映射
-        self.static_map = {}  # 存放 url 与静态资源的映射
-        self.func_map = {}  # 存放 endpoint 与处理函数的映射
-        self.static_catalog = static_catalog  # 静态资源本地存放路径
-        self.route = Route(self)  # 路由装饰器
+        self.url_map = {}                                       # 存放 url 与 endpoint 的映射
+        self.static_map = {}                                    # 存放 url 与静态资源的映射
+        self.func_map = {}                                      # 存放 endpoint 与处理函数的映射
+        self.static_catalog = static_catalog                    # 静态资源本地存放路径
+        self.template_catalog = template_catalog                # 模板文件本地存放路径
+        SoftWeb.template_catalog = self.template_catalog        # 初始化类的属性，供置换模板引擎调用
+        self.route = Route(self)                                # 路由装饰器
 
     def add_url_rule(self, url, func, func_type, endpoint=None, **options):
         if endpoint is None:
@@ -144,3 +149,11 @@ class SoftWeb:
         本框架被 WSGI 调用入口函数的方法
         """
         return wsgi_app(self, env, start_response)
+
+
+def simple_template(path, **options):
+    """
+    模板渲染的接口
+    """
+    return replace_template(SoftWeb, path, **options)
+
