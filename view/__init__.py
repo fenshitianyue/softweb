@@ -4,7 +4,7 @@ class View(object):
     methods = None
     methods_meta = None
 
-    def dispath_request(self, request, *args, **kwargs):
+    def dispatch_request(self, request, *args, **kwargs):
         """
         视图处理函数调度入口
         """
@@ -17,7 +17,7 @@ class View(object):
         """
         def func(*args, **kwargs):
             obj = func.view_class()
-            return obj.dispath_request(*args, **kwargs)
+            return obj.dispatch_request(*args, **kwargs)
 
         func.view_class = cls
         func.__name__ = name
