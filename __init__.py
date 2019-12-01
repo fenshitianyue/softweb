@@ -9,6 +9,7 @@ from route import Route
 from template_engine import replace_template
 from session import create_session_id, session
 # import view
+import json
 import os
 
 
@@ -27,6 +28,7 @@ TYPE_MAP = {
     'jpg':  'text/jpeg',
     'jpeg': 'text/jpeg',
 }
+
 
 class ExecFunc:
     def __init__(self, func, func_type, **options):
@@ -181,6 +183,7 @@ def simple_template(path, **options):
     """
     return replace_template(SoftWeb, path, **options)
 
+
 def redirect(url, status_code=302):
     """
     url重定向接口，默认为临时重定向
@@ -189,4 +192,15 @@ def redirect(url, status_code=302):
     response.headers['Location'] = url
 
     return response
+
+
+def render_json(data):
+    """
+    封装json数据响应包
+    """
+    content_type = 'text/plain'
+    if isinstance(data, dict) or isinstance(data, list):
+        data = json.dumps(data)
+        content_type = 'application/json'
+    return Response(data, content_type='{0}; charset=UTF-8'.format(content_type), status=200)
 
