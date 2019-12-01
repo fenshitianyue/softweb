@@ -7,6 +7,7 @@ import exceptions
 import utility
 from route import Route
 from template_engine import replace_template
+from session import create_session_id, session
 # import view
 import os
 
@@ -37,7 +38,7 @@ class ExecFunc:
 class SoftWeb:
     template_catalog = None  # 类属性，模板文件本地存放目录
 
-    def __init__(self, static_catalog='static', template_catalog='template'):
+    def __init__(self, static_catalog='static', template_catalog='template', session_path='.session'):
         self.host = '192.168.204.129'
         self.port = 1024
         self.url_map = {}                                       # 存放 url 与 endpoint 的映射
@@ -47,6 +48,7 @@ class SoftWeb:
         self.template_catalog = template_catalog                # 模板文件本地存放路径
         SoftWeb.template_catalog = self.template_catalog        # 初始化类的属性，供置换模板引擎调用
         self.route = Route(self)                                # 路由装饰器
+        self.session_path = session_path                        # 会话的session缓存路径
 
     def add_url_rule(self, url, func, func_type, endpoint=None, **options):
         if endpoint is None:
@@ -91,9 +93,17 @@ class SoftWeb:
             # print 'enter else...'
             endpoint = self.url_map.get(file_path, None)
 
-        headers = {
-            'Server': 'SoftWeb 0.1'  # Server 参数表示运行的服务名
-        }
+        cookies = request.cookies
+        # 如果此次请求中没有session_id，则在HTTP报文响应头中添加此次生成的唯一性session_id
+        if 'session_id' not in cookies:
+            headers = {
+                'Server': 'SoftWeb 0.1',  # Server 参数表示运行的服务名
+                'Set-Cookie': 'session_id=%s' % create_session_id(),
+            }
+        else:
+            headers = {
+                'Server': 'SoftWeb 0.1',
+            }
         if endpoint is None:
             return ERROR_MAP[404]
         exec_function = self.func_map[endpoint]
@@ -140,7 +150,17 @@ class SoftWeb:
             self.host = host
         if port is not None:
             self.port = port
+        # 映射静态资源处理函数（所有静态资源处理函数都是静态资源路由）
         self.func_map['static'] = ExecFunc(func=self.dispatch_static, func_type='static')
+
+        # 如果会话session目录不存在，则创建
+        if not os.path.exists(self.session_path):
+            os.mkdir(self.session_path)
+
+        # 设置会话session存放目录
+        session.set_storage_path(self.session_path)
+        session.load_local_session()
+
         # 启动web框架
         run_simple(hostname=self.host, port=self.port, application=self, **options)
 
