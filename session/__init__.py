@@ -8,6 +8,25 @@ import os
 def create_session_id():
     return base64.encodestring(str(time.time()))[::-1][3:]
 
+class AuthSession(object):
+
+    # session 校验装饰器
+    def auth_session(cls, func, *args, **options):
+        def decorator(obj, request):
+            return func(obj, request) if cls.auth_logic(request, *args, **options) else cls.auth_fail_callback(request, *args, **options)
+        return decorator
+
+    # 验证接口
+    @staticmethod
+    def auth_logic(request, *args, **options):
+        NotImplementedError
+
+    # 验证失败回调接口
+    @staticmethod
+    def auth_fail_callback(request, *args, **options):
+        NotImplementedError
+
+
 def get_session_id(request):
     return request.cookies.get('session_id', None)
 
@@ -29,6 +48,9 @@ class Session:
         if cls.__instance is None:
             cls.__instance = super(Session, cls).__new__(cls, *args, **kwargs)
         return cls.__instance
+
+    def set_storage_path(self, session_path):
+        self.__storage_path__ = session_path
 
     def storage(self, session_id):
         """
@@ -77,6 +99,15 @@ class Session:
         if item in current_session:
             del current_session[item]
             self.storage(session_id)
+
+    def map(self, request):
+        """
+        获取当前会话记录
+        """
+        return self.__session_map__.get(get_session_id(request), {})
+
+    def get(self, request, item):
+        return self.__session_map__.get(get_session_id(request), {}).get(item, None)
 
 # 创建全局对象session
 session = Session()
