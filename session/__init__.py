@@ -11,6 +11,7 @@ def create_session_id():
 class AuthSession(object):
 
     # session 校验装饰器
+    @classmethod
     def auth_session(cls, func, *args, **options):
         def decorator(obj, request):
             return func(obj, request) if cls.auth_logic(request, *args, **options) else cls.auth_fail_callback(request, *args, **options)
@@ -85,7 +86,7 @@ class Session:
         if session_id in self.__session_map__:
             self.__session_map__[session_id][item] = value
         else:
-            self.__setattr__[session_id] = {}
+            self.__session_map__[session_id] = {}
             self.__session_map__[session_id][item] = value
         # 每次session变动后都将变动后的session缓存在本地
         self.storage(session_id)
