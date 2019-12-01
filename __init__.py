@@ -124,6 +124,10 @@ class SoftWeb:
         else:  # 未知类型处理
             return ERROR_MAP[503]
 
+        # 如果rep是Response类型，说明是重定向结果，直接返回
+        if isinstance(rep, Response):
+            return rep
+
         status = 200
         content_type = 'text/html'
         return Response(rep, content_type='{0}; charset=UTF-8 '.format(content_type), headers=headers, status=status)
@@ -176,4 +180,13 @@ def simple_template(path, **options):
     模板渲染的接口
     """
     return replace_template(SoftWeb, path, **options)
+
+def redirect(url, status_code=302):
+    """
+    url重定向接口，默认为临时重定向
+    """
+    response = Response('', status=status_code)
+    response.headers['Location'] = url
+
+    return response
 
