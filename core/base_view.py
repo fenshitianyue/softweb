@@ -4,6 +4,9 @@ from softweb.view import View
 from softweb.session import AuthSession, session
 
 class BaseView(View):
+    """
+    不需要鉴权的视图继承此类
+    """
     methods = ['GET', 'POST']
 
     def get(self, request, *args, **options):
@@ -39,7 +42,7 @@ class AuthLogin(AuthSession):
 
 class SessionView(BaseView):
     """
-    会话视图基类
+    需要鉴权的视图继承此类
     """
     @AuthLogin.auth_session
     def dispatch_request(self, request, *args, **options):
