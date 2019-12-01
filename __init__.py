@@ -196,7 +196,7 @@ def redirect(url, status_code=302):
 
 def render_json(data):
     """
-    封装json数据响应包
+    以json格式返回数据接口
     """
     content_type = 'text/plain'
     if isinstance(data, dict) or isinstance(data, list):
@@ -204,3 +204,19 @@ def render_json(data):
         content_type = 'application/json'
     return Response(data, content_type='{0}; charset=UTF-8'.format(content_type), status=200)
 
+def render_file(file_path, file_name=None):
+    """
+    文件下载接口
+    """
+    if os.path.exists(file_path):
+        with open(file_path, 'rb') as f:
+            content = f.read()
+
+        if file_name is None:
+            file_name = file_path.split('/')[-1]
+
+        headers = {
+            'Content-Disposition': 'attachment; filename={0}'.format(file_name)
+        }
+        return Response(content, headers=headers, status=200)
+    return ERROR_MAP[404]
