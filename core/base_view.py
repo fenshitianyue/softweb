@@ -2,6 +2,7 @@
 
 from softweb.view import View
 from softweb.session import AuthSession, session
+from softweb import redirect
 
 class BaseView(View):
     """
@@ -37,7 +38,7 @@ class AuthLogin(AuthSession):
 
     @staticmethod
     def auth_fail_callback(request, *args, **options):
-        return '<a href="/login">登陆</a>'
+        return redirect('/login')
 
 
 class SessionView(BaseView):
