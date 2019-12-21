@@ -75,6 +75,7 @@ class SoftWeb:
                 rep = f.read()
             return Response(rep, content_type=doc_type)
         else:
+            # TODO(aideny): 后面这里抛出对应的异常
             return ERROR_MAP[404]
 
     def dispatch_request(self, request):
@@ -107,6 +108,7 @@ class SoftWeb:
                 'Server': 'SoftWeb 0.1',
             }
         if endpoint is None:
+            # TODO(aideny): 后面这里抛出对应的异常
             return ERROR_MAP[404]
         exec_function = self.func_map[endpoint]
         if exec_function.func_type == 'route':  # 路由处理
@@ -118,12 +120,14 @@ class SoftWeb:
                 else:
                     rep = exec_function.func()
             else:  # 未知请求方法
+                # TODO(aideny): 后面这里抛出对应的异常
                 return ERROR_MAP[401]
         elif exec_function.func_type == 'view':  # 视图处理
             rep = exec_function.func(request)
         elif exec_function.func_type == 'static':  # 静态资源处理
             return exec_function.func(file_path)
         else:  # 未知类型处理
+            # TODO(aideny): 后面这里抛出对应的异常
             return ERROR_MAP[503]
 
         # 如果rep是Response类型，说明是重定向结果，直接返回
@@ -209,6 +213,9 @@ def render_file(file_path, file_name=None):
     文件下载接口
     """
     if os.path.exists(file_path):
+        if not os.access(file_path, os.R_OK):
+            # TODO(aideny): 后面这里抛出对应的异常
+            pass
         with open(file_path, 'rb') as f:
             content = f.read()
 
@@ -219,4 +226,5 @@ def render_file(file_path, file_name=None):
             'Content-Disposition': 'attachment; filename={0}'.format(file_name)
         }
         return Response(content, headers=headers, status=200)
+    # TODO(aideny): 后面这里抛出对应的异常
     return ERROR_MAP[404]
