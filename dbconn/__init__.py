@@ -35,6 +35,16 @@ class DBResult:
             return ret
         return decorator
 
+    def to_dict(self):
+        """调试接口"""
+        data = {
+            'is_ok': self.is_ok,
+            'result': self.result,
+            'error': self.error,
+            'rows': self.rows
+        }
+        return data
+
 
 class BaseDB:
 
