@@ -7,13 +7,13 @@ class DBResult:
     """
     数据库返回的结果对象，类似django的queryset
     """
-    exists = False    # 执行成功与否
+    is_ok = False    # 执行成功与否
     result = None     # 查询结果集：[{...} ...]
     error = None      # 异常信息
     rows = None       # 影响行数
 
     def index_of(self, index):
-        if self.exists and isinstance(index, int) and index < self.rows and index >= -self.rows:
+        if self.is_ok and isinstance(index, int) and index < self.rows and index >= -self.rows:
             return self.result[index]
 
     def get_first(self):
@@ -29,7 +29,7 @@ class DBResult:
             ret = DBResult()
             try:
                 ret.rows, ret.result = func(*args, **options)
-                ret.exists = True
+                ret.is_ok = True
             except Exception as e:
                 ret.error = e
             return ret
