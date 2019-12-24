@@ -62,18 +62,29 @@ class BaseDB:
     def close(self):
         self.conn.close()
 
+    @DBResult.handler
     def execute(self, sql, params=None):
-        pass
+        with self.conn as cursor:
+            rows = cursor.execute(sql, params) if params and isinstance(params, dict) else cursor.execute(sql)
+            result = cursor.fetchall()
+            return rows, result
 
     def create_db(self, db_name, db_charset='utf8'):
-        pass
+        sql = 'create database {} default character set {}'.format(db_name, db_charset)
+        return self.execute(sql)
 
+    @DBResult.handler
     def choose_db(self, db_name):
-        pass
+        self.conn.select_db(db_name)
+        # 这里因为执行结果并没有影响数据，所以返回两个空值
+        return None, None
 
     def insert(self, sql, params=None):
-        pass
+        ret = self.execute(sql, params)
+        ret.result = self.conn.insert_id()
+        return ret
 
     def drop_db(self, db_name):
-        pass
+        sql = 'drop database {}'.format(db_name)
+        return self.execute(sql)
 
