@@ -44,6 +44,7 @@ class SoftWeb:
         self.route = Route(self)                                # 路由装饰器
         self.session_path = session_path                        # 会话的session缓存路径
 
+    @exceptions.capture
     def add_url_rule(self, url, func, func_type, endpoint=None, **options):
         if endpoint is None:
             endpoint = func.__name__
@@ -57,6 +58,7 @@ class SoftWeb:
         # 添加节点与处理函数的映射
         self.func_map[endpoint] = ExecFunc(func, func_type, **options)
 
+    @exceptions.capture
     def dispatch_static(self, static_path):
         """
         静态资源路由控制：找到了返回文件，否则返回404响应
@@ -70,6 +72,7 @@ class SoftWeb:
         else:
             raise exceptions.FileNoExistsError
 
+    @exceptions.capture
     def dispatch_request(self, request):
         """
         路由控制
@@ -197,6 +200,7 @@ def render_json(data):
         content_type = 'application/json'
     return Response(data, content_type='{0}; charset=UTF-8'.format(content_type), status=200)
 
+@exceptions.capture
 def render_file(file_path, file_name=None):
     """
     文件下载接口
