@@ -12,14 +12,6 @@ from session import create_session_id, session
 import json
 import os
 
-
-# 定义常见服务器异常的响应消息
-ERROR_MAP = {
-    401: Response('<h1>401 Unknown or unsupported method</h1>', content_type='text/html; charset=UTF-8', status=401),  # 鉴权失败
-    404: Response('<h1>404 Source not found</h1>', content_type='text/html; charset=UTF-8', status=404),  # not found
-    503: Response('<h1>503 Unknown function type</h1>', content_type='text/html; charset=UTF-8', status=503),  # 响应超时
-}
-
 # 定义文件类型
 TYPE_MAP = {
     'css':   'text/css',
