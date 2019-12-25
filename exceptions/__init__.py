@@ -1,5 +1,16 @@
 # -*- coding: utf-8 -*-
 
+# 定义常见服务器异常的响应消息
+ERROR_MAP = {
+    2: Response('<h1>401 File not found</h1>', content_type='text/html; charset=UTF-8', status=2),
+    13: Response('<h1>401 Require read permission</h1>', content_type='text/html; charset=UTF-8', status=13),
+    400: Response('<h1>400 Endpoint not exists</h1>', content_type='text/html; charset=UTF-8', status=400),
+    404: Response('<h1>404 Source not found</h1>', content_type='text/html; charset=UTF-8', status=404),
+    405: Response('<h1>405 Unknown or unsupported method</h1>', content_type='text/html; charset=UTF-8', status=405),
+    500: Response('<h1>500 Invild server error</h1>', content_type='text/html; charset=UTF-8', status=500),
+    503: Response('<h1>503 Unknown function type</h1>', content_type='text/html; charset=UTF-8', status=503),
+}
+
 class SoftWebExecption(object):
     """
     框架异常基类
