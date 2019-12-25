@@ -56,7 +56,8 @@ class SoftWeb:
         if endpoint is None:
             endpoint = func.__name__
         if url in self.url_map:
-            raise exceptions.URLExistError
+            # raise exceptions.URLExistError
+            raise exceptions.PageNotFoundError
         if endpoint in self.func_map and func_type != 'static':
             raise exceptions.EndpointExistError
         # 添加 url 与节点的映射
