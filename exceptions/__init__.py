@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from werkzeug.wrappers import Response
+
+CONTENT_TYPE = 'text/html; charset=UTF-8'
+
 # 定义常见服务器异常的响应消息
 ERROR_MAP = {
     2: Response('<h1>401 File not found</h1>', content_type='text/html; charset=UTF-8', status=2),
@@ -63,4 +67,24 @@ class UnknownError(SoftWebExecption):
     """未知错误"""
     def __init__(self, code=500, message='Invild server error'):
         super(UnknownError, self).__init__(code, message)
+
+
+# def reload(code):
+#     def decorator(func):
+#         ERROR_MAP[code] = func
+#     return decorator
+
+def capture(func):
+    def decorator(*args, **options):
+        try:
+            rep = func(*args, **options)
+        except SoftWebExecption as e:
+            if e.code in ERROR_MAP and ERROR_MAP[e.code]:
+                rep = ERROR_MAP[e.code]
+                status = e.code if e.code >= 100 else 500
+                return rep if isinstance(rep, Response) or rep is None else Response(rep(), content_type=CONTENT_TYPE, status=status)
+            else:
+                raise e
+        return rep
+    return decorator
 
